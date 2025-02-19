@@ -29,6 +29,7 @@ class SASRec(nn.Module):
 
         self.item_emb = nn.Embedding(item_num + 1, hidden_units, padding_idx=0)
         self.pos_emb = nn.Embedding(maxlen, hidden_units)
+        torch.manual_seed(42)
         self.emb_dropout = nn.Dropout(dropout_rate)
 
         self.attention_layernorms = nn.ModuleList() # to be Q for self-attention
@@ -65,14 +66,17 @@ class SASRec(nn.Module):
         """
 
         if isinstance(module, (nn.Linear, nn.Conv1d)):
+            torch.manual_seed(42)
             module.weight.data.normal_(mean=0.0, std=self.initializer_range)
             if module.bias is not None:
                 module.bias.data.zero_()
         elif isinstance(module, nn.Embedding):
+            torch.manual_seed(42)
             module.weight.data.normal_(mean=0.0, std=self.initializer_range)
             if module.padding_idx is not None:
                 module.weight.data[module.padding_idx].zero_()
         elif isinstance(module, nn.LayerNorm):
+            torch.manual_seed(42)
             module.bias.data.zero_()
             module.weight.data.fill_(1.0)
             
@@ -97,8 +101,6 @@ class SASRec(nn.Module):
 
             mha_outputs, _ = attention_layers[i](Q, seqs, seqs, 
                                             attn_mask=attention_mask)
-                                            # key_padding_mask=timeline_mask
-                                            # need_weights=False) this arg do not work?
 
             seqs = Q + mha_outputs
             seqs = torch.transpose(seqs, 0, 1)
@@ -153,9 +155,8 @@ class SASRecContrastiveBaseline(SASRec):
         
         #ignore last item which does not have a closest positive sample
         p_key[:, :-1][pos_mask[:, :-1]] = keys[torch.arange(a.shape[0]).unsqueeze(-1),
-                                    self._closest_pos_sample(a, skip)][:, :-1][pos_mask[:, :-1]] # на месте айтема с позитивным фидбеком его выход энкодера
-        p[:, :-1][pos_mask[:, :-1]] = a[:, :-1][pos_mask[:, :-1]] # на месте айтема с позитивным фидбеком его эмбед
-        # n на месте айтема с негативным фидбеком его эмбед
+                                    self._closest_pos_sample(a, skip)][:, :-1][pos_mask[:, :-1]]
+        p[:, :-1][pos_mask[:, :-1]] = a[:, :-1][pos_mask[:, :-1]] 
         n_size = self.maxlen - 1
                                                                         
         return n.tile(n.shape[1], 1, 1), p.view(-1, *p.shape[2:]), p_key.view(-1, *p_key.shape[2:])

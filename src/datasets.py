@@ -200,8 +200,7 @@ class CausalPredictionDataset(CausalDataset):
         
         if self.validation_mode:
             item['target'] = positive_input_ids[-1]
-            last_positive_id = np.where(input_ids == item['target'])[-1][-1]
-            item['full_history'] = item_sequence[:last_positive_id]
+            item['full_history'] = item_sequence[:-1]
             
             if self.positive_eval:
                 item['input_ids'] = positive_input_ids[-self.max_length - 1: -1]

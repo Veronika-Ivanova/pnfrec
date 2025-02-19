@@ -84,6 +84,8 @@ def prepare_splitted_data(data_path,
     test.item_id = test.item_id + 1
     
     train = filter_users_by_history_len(train, user_col, relevance_col, relevance_threshold)
+    validation = filter_users_by_history_len(validation, user_col, relevance_col, relevance_threshold)
+    test = filter_users_by_history_len(test, user_col, relevance_col, relevance_threshold)
     test = test[test[user_col].isin(train[user_col])]
     validation = validation[validation[user_col].isin(train[user_col])]
     
@@ -91,6 +93,8 @@ def prepare_splitted_data(data_path,
     test = pd.concat([train_test_users, test])
     train_val_users = train[train[user_col].isin(validation[user_col].unique())]
     validation = pd.concat([train_val_users, validation])
+    
+    train_full = train.copy()
     
     if filter_negative:
         train = train[train[relevance_col] >= relevance_threshold]    
@@ -103,7 +107,13 @@ def prepare_splitted_data(data_path,
     last_item = test_full_history.tail(1)
     test = test_full_history.head(-1)
     
-    return train, validation, test, last_item
+    last_item_pos = last_item[last_item[relevance_col] >= relevance_threshold]
+    last_item_neg = last_item[last_item[relevance_col] < relevance_threshold]
+    
+    test_pos = test[test[user_col].isin(last_item_pos[user_col])] 
+    test_neg = test[test[user_col].isin(last_item_neg[user_col])] 
+    
+    return train, train_full, validation, test_pos, test_neg, last_item_pos, last_item_neg
 
 
 def filter_users_by_history_len(df, 

@@ -22,3 +22,4 @@ def preds2recs(preds, item_mapping=None):
         recs.item_id = recs.item_id.map(item_mapping)
 
     return recs
+

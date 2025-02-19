@@ -9,25 +9,22 @@ from replay.metrics import OfflineMetrics, HitRate, MRR, NDCG, Coverage
 from tqdm.auto import tqdm
 
 
-def compute_replay_metrics(last_item, preds, train, relevance_col,
+def compute_replay_metrics(last_item_pos, last_item_neg, preds_pos, preds_neg, train_full, relevance_col,
                     relevance_threshold, k=10):
-    
-    last_item_pos = last_item[last_item[relevance_col] >= relevance_threshold]
-    last_item_neg = last_item[last_item[relevance_col] < relevance_threshold]
     
     metrics = [NDCG(k), MRR(k), HitRate(k)]
     
     positive_metrics = OfflineMetrics(
         metrics, query_column='user_id', item_column='item_id', rating_column='prediction'
-    )(preds, last_item_pos)
+    )(preds_pos, last_item_pos)
     
     negative_metrics = OfflineMetrics(
         metrics, query_column='user_id', item_column='item_id', rating_column='prediction'
-    )(preds, last_item_neg)
+    )(preds_neg, last_item_neg)
     
     coverage = OfflineMetrics(
         [Coverage(k)], query_column='user_id', item_column='item_id', rating_column='prediction'
-    )(preds, last_item_neg, train)
+    )(pd.concat([preds_pos, preds_neg]), last_item_neg, train_full)
     
     metrics_dict = {
         'NDCG_p': round(positive_metrics['NDCG@10'], 6),
@@ -45,26 +42,29 @@ def compute_replay_metrics(last_item, preds, train, relevance_col,
     return metrics_dict
 
 
-def compute_metrics(last_item, preds, relevance_col,
+# fix positive / negative ground tr
+
+def compute_metrics(last_item_pos,
+    last_item_neg,
+    preds_pos,
+    preds_neg, train_full, relevance_col,
                     relevance_threshold, k=10):
-    
-    last_item_pos = last_item[last_item[relevance_col] >= relevance_threshold]
-    last_item_neg = last_item[last_item[relevance_col] < relevance_threshold]
     
     # when we have 1 true positive, HitRate == Recall and MRR == MAP
     metrics_dict = {
-        f'NDCG_p': round(ndcg_at_k(last_item_pos, preds, col_user='user_id', col_item='item_id',
+        f'NDCG_p': round(ndcg_at_k(last_item_pos, preds_pos, col_user='user_id', col_item='item_id',
                              col_prediction='prediction', col_rating=relevance_col, k=k), 6),
-        f'HR_p': round(recall_at_k(last_item_pos, preds, col_user='user_id', col_item='item_id',
+        f'HR_p': round(recall_at_k(last_item_pos, preds_pos, col_user='user_id', col_item='item_id',
                              col_prediction='prediction', col_rating=relevance_col, k=k), 6),
-        f'MRR_p': round(map_at_k(last_item_pos, preds, col_user='user_id', col_item='item_id',
+        f'MRR_p': round(map_at_k(last_item_pos, preds_pos, col_user='user_id', col_item='item_id',
                            col_prediction='prediction', col_rating=relevance_col, k=k), 6),
-        f'NDCG_n': round(ndcg_at_k(last_item_neg, preds, col_user='user_id', col_item='item_id',
+        f'NDCG_n': round(ndcg_at_k(last_item_neg, preds_neg, col_user='user_id', col_item='item_id',
                              col_prediction='prediction', col_rating=relevance_col, k=k), 6),
-        f'HR_n': round(recall_at_k(last_item_neg, preds, col_user='user_id', col_item='item_id',
+        f'HR_n': round(recall_at_k(last_item_neg, preds_neg, col_user='user_id', col_item='item_id',
                              col_prediction='prediction', col_rating=relevance_col, k=k), 6),
-        f'MRR_n': round(map_at_k(last_item_neg, preds, col_user='user_id', col_item='item_id',
-                           col_prediction='prediction', col_rating=relevance_col, k=k), 6)
+        f'MRR_n': round(map_at_k(last_item_neg, preds_neg, col_user='user_id', col_item='item_id',
+                           col_prediction='prediction', col_rating=relevance_col, k=k), 6),
+        f'Coverage': round(pd.concat([preds_pos, preds_neg]).item_id.nunique() / train_full.item_id.nunique(), 6),
     }
     
     metrics_dict['HR_diff'] = round(metrics_dict['HR_p'] - metrics_dict['HR_n'], 6)
