@@ -42,8 +42,6 @@ def compute_replay_metrics(last_item_pos, last_item_neg, preds_pos, preds_neg, t
     return metrics_dict
 
 
-# fix positive / negative ground tr
-
 def compute_metrics(last_item_pos,
     last_item_neg,
     preds_pos,
