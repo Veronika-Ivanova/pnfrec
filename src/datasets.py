@@ -22,11 +22,11 @@ class CausalDataset(Dataset):
         Args:
             df (pd.DataFrame): Dataframe with interactions.
             max_length (int): Maximum sequence legth.
+            relevance_col (str): Relevance column in dataframe.
+            relevance_threshold (float): Threshold for negative feedback.
             user_col (str): User column in dataframe.
             item_col (str): Item column in dataframe.
             time_col (str): Time column in dataframe.
-            relevance_col (str): Relevance column in dataframe.
-            relevance_threshold (float): Threshold for negative feedback.
         """
 
         self.max_length = max_length
@@ -85,11 +85,11 @@ class CausalNegativeFeedbackDataset(Dataset):
         Args:
             df (pd.DataFrame): Dataframe with interactions.
             max_length (int): Maximum sequence legth.
+            relevance_col (str): Relevance column in dataframe.
+            relevance_threshold (float): Threshold for negative feedback.
             user_col (str): User column in dataframe.
             item_col (str): Item column in dataframe.
             time_col (str): Time column in dataframe.
-            relevance_col (str): Relevance column in dataframe.
-            relevance_threshold (float): Threshold for negative feedback.
         """
 
         self.max_length = max_length
@@ -156,18 +156,15 @@ class CausalPredictionDataset(CausalDataset):
         Args:
             df (pd.DataFrame): Dataframe with interactions.
             max_length (int): Maximum sequence legth.
+            relevance_col (str): Relevance column in dataframe.
+            relevance_threshold (float): Threshold for negative feedback.
             user_col (str): User column in dataframe.
             item_col (str): Item column in dataframe.
             time_col (str): Time column in dataframe.
-            session_col (str): Session column in dataframe.
-            relevance_col (str): Relevance column in dataframe.
-            relevance_threshold (float): Threshold for negative feedback.
-            add_session_separator (bool): If True then add separating token between sessions.
-            last_positive (bool): If True then take only users
-                with last positive interaction for validation.
             validation_mode (bool): Validation or test prediction mode.
             validation_size (int): Number of users to sample in validation set.
                 If None then take all users.
+            positive_eval (bool): use only positive items from user's history for elaluation.
         """
 
         self.max_length = max_length
