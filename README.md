@@ -26,7 +26,7 @@ Our models:
 * **$PNFRec$**, trained using positive and negative CE;
 * **$PNFRec_{pn}$**, trained using positive CE and contrastive
 loss;
-* ***$PNFRec_{pc}$**, trained using positive and negative CE and contrastive loss.
+* **$PNFRec_{pc}$**, trained using positive and negative CE and contrastive loss.
 
 Baseline models:
 * **$SASRec_p$**, trained on positive interactions only;
