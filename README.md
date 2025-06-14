@@ -1,6 +1,6 @@
-# Benefiting from Negative yet Informative Feedback in Sequential Recommendations with Contrastive Learning
+# Benefiting from Negative yet Informative Feedback by Contrasting Opposing Sequential Patterns
 
-This repository contains code for *Benefiting from Negative yet Informative Feedback in Sequential Recommendations with Contrastive Learning* paper.
+This repository contains code for *Benefiting from Negative yet Informative Feedback by Contrasting Opposing Sequential Patterns* paper.
 
 ## Usage
 Install requirements:
