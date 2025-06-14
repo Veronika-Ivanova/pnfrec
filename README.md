@@ -18,6 +18,21 @@ python run_pnfrec.py
 ```
 Below are the tables with main results for different datasets. The best result for **$\Delta HR@10$** and **$\Delta NDCG@10$** in each row is highlighted in bold. Each metric is averaged over five runs and presented as Mean $\pm$ SD.
 
+**$\Delta HR@10 = HR_p@10 - HR_n@10$** 
+
+**$\Delta NDCG@10 = NDCG_p@10 - NDCG_n@10$**
+
+Our models:
+* **$PNFRec$**, trained using positive and negative CE;
+* **$PNFRec_{pn}$**, trained using positive CE and contrastive
+loss;
+* ***$PNFRec_{pc}$**, trained using positive and negative CE and contrastive loss.
+
+Baseline models:
+* **$SASRec_p$**, trained on positive interactions only;
+* **$SASRec$**, trained on the user’s entire interaction history;
+* **$SASRec_c$**, trained on the loss objective with the contrastive term introduced in [Enhancing Sequential Music Recommendation with Negative Feedback-informed Contrastive Learning](https://arxiv.org/abs/2409.07367).
+
 **MovieLens-1m**
 
 | **Model**          | **$PNFRec (our)$**   | **$PNFRec_{pn} (our)$**|**$PNFRec_{pc} (our)$**| **$SASRec_p$**   |**$SASRec_c$**    |**$SASRec$**      |
